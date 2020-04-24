@@ -111,19 +111,20 @@ while True:
 
     most_viewed = max(views, key=views.get)
     print("\n\"" + most_viewed + "\" is the most viewed sheet with " +
-          str(views[most_viewed]) + " views.")
+          "{:,d}".format(views[most_viewed]) + " views.")
 
     most_fav = max(fav, key=fav.get)
     print("\"" + most_fav + "\" is the most favorited sheet with " +
-          str(fav[most_fav]) + " favorites.\n")
+          "{:,d}".format(fav[most_fav]) + " favorites.\n")
 
-    print("\nTOTAL VIEWS:", sum(views.values()))
-    print("TOTAL FAVORITES:", sum(fav.values()))
+    print("\nTOTAL VIEWS:", "{:,d}".format(sum(views.values())))
+    print("TOTAL FAVORITES:", "{:,d}".format(sum(fav.values())))
 
     sorted_views = sorted(views.items(), key=lambda x: x[1], reverse=True)
     viewed = [["", "SHEET NAME", "VIEW COUNT", "FAVORITES COUNT"]]
     for i, e in zip([i + 1 for i in range(0, len(sorted_views))], sorted_views):
-        viewed.append([i, e[0][:offset], e[1], fav[e[0]]])
+        viewed.append([i, e[0][:offset], "{:,d}".format(
+            e[1]), "{:,d}".format(fav[e[0]])])
 
     # print(tabulate(viewed[1:], headers=viewed[0], tablefmt='orgtbl'))
     print("\n Most viewed sheets :\n")
@@ -136,7 +137,8 @@ while True:
     sorted_fav = sorted(fav.items(), key=lambda x: x[1], reverse=True)
     faved = [["", "SHEET NAME", "FAVORITES COUNT", "VIEW COUNT"]]
     for i, e in zip([i + 1 for i in range(0, len(sorted_fav))], sorted_fav):
-        faved.append([i, e[0][:offset], e[1], views[e[0]]])
+        faved.append([i, e[0][:offset],
+                      "{:,d}".format(e[1]), "{:,d}".format(views[e[0]])])
 
     print("\n Most favorited sheets :\n")
 
@@ -153,5 +155,4 @@ while True:
             break
         elif a.lower() == "q":
             system(clear_command)
-            break
             quit()
