@@ -25,7 +25,7 @@ def print_user_stats(username, nb_followers, nb_following, nb_scores):
     s = "*" * offset + " " + username + " " + "*" * offset
     print(s)
     for k, v in {"Followers": nb_followers, "Following": nb_following, "Number of scores": nb_scores}.items():
-        print(k.upper() + ": " + str(v).rjust(23 - len(k), ' '))
+        print(k.upper() + ": " + v.rjust(23 - len(k), ' '))
 
 
 try:
@@ -80,9 +80,9 @@ while True:
     user_name = driver.find_elements_by_class_name(user_class_name)[0].text
     user_details = driver.find_elements_by_class_name(user_details_class_name)
 
-    nb_followers = int(user_details[0].text)
-    nb_following = int(user_details[1].text)
-    nb_scores = int(user_details[2].text)
+    nb_followers = user_details[0].text
+    nb_following = user_details[1].text
+    nb_scores = user_details[2].text
     print_user_stats(user_name, nb_followers, nb_following, nb_scores)
 
     sheet_music_url = driver.find_element_by_partial_link_text('Sheet')
@@ -117,6 +117,9 @@ while True:
     print("\"" + most_fav + "\" is the most favorited sheet with " +
           str(fav[most_fav]) + " favorites.\n")
 
+    print("\nTOTAL VIEWS:", sum(views.values()))
+    print("TOTAL FAVORITES:", sum(fav.values()))
+
     sorted_views = sorted(views.items(), key=lambda x: x[1], reverse=True)
     viewed = [["", "SHEET NAME", "VIEW COUNT", "FAVORITES COUNT"]]
     for i, e in zip([i + 1 for i in range(0, len(sorted_views))], sorted_views):
@@ -143,7 +146,8 @@ while True:
     print(fav_tab)
 
     while True:
-        a = input("\nPress [ENTER] to see stats for another user, [Q] to exit")
+        a = input(
+            "\nPress [ENTER] to see stats for another user, [Q] to exit\n> ")
         if a == "":
             system(clear_command)
             break
