@@ -15,6 +15,16 @@ from selenium import webdriver
 
 clear_command = "cls" if platform.system() == "Windows" else "clear"
 system(clear_command)
+
+print("""
+  __  __                                                      ____   _          _        
+ |  \/  | _   _  ___   ___  ___   ___  ___   _ __  ___       / ___| | |_  __ _ | |_  ___ 
+ | |\/| || | | |/ __| / _ \/ __| / __|/ _ \ | '__|/ _ \ _____\___ \ | __|/ _` || __|/ __|
+ | |  | || |_| |\__ \|  __/\__ \| (__| (_) || |  |  __/|_____|___) || |_| (_| || |_ \__ |
+ |_|  |_| \__,_||___/ \___||___/ \___|\___/ |_|   \___|      |____/  \__|\__,_| \__||___/
+                                                                                         
+
+""")
 print("Setting things up...")
 
 offset = 50
@@ -76,6 +86,7 @@ while True:
 
     user_class_name = "_3-vzW"
     user_details_class_name = "k1Ae2"
+    sheet_music_url = driver.find_element_by_partial_link_text('Sheet')
 
     user_name = driver.find_elements_by_class_name(user_class_name)[0].text
     user_details = driver.find_elements_by_class_name(user_details_class_name)
@@ -83,9 +94,10 @@ while True:
     nb_followers = user_details[0].text
     nb_following = user_details[1].text
     nb_scores = user_details[2].text
-    print_user_stats(user_name, nb_followers, nb_following, nb_scores)
 
-    sheet_music_url = driver.find_element_by_partial_link_text('Sheet')
+    views = dict()
+    fav = dict()
+
     if nb_scores == 0:
         print("\n" + user_name + " has not published any scores yet.")
         # break
@@ -93,10 +105,6 @@ while True:
     sheet_music_url.click()
 
     sheets = driver.find_elements_by_tag_name('article')
-
-    views = dict()
-    fav = dict()
-
     for sheet in sheets:
         line = sheet.text.split("\n")
         if "pro" in line:
@@ -109,36 +117,38 @@ while True:
         views[name] = int(re.sub("[^0-9]", "", stats[4]))
         fav[name] = int(re.sub("[^0-9]", "", stats[5]))
 
+    sorted_views = sorted(views.items(), key=lambda x: x[1], reverse=True)
+    viewed = [["", "SHEET NAME", "VIEW COUNT", "FAVORITES COUNT"]]
+    for i, e in zip([i + 1 for i in range(0, len(sorted_views))], sorted_views):
+        viewed.append([i, e[0][:offset], "{:,d}".format(
+            e[1]), "{:,d}".format(fav[e[0]])])
+    views_tab = PrettyTable(viewed[0])
+    for v in viewed[1:]:
+        views_tab.add_row(v)
+    sorted_fav = sorted(fav.items(), key=lambda x: x[1], reverse=True)
+    faved = [["", "SHEET NAME", "FAVORITES COUNT", "VIEW COUNT"]]
+    for i, e in zip([i + 1 for i in range(0, len(sorted_fav))], sorted_fav):
+        faved.append([i, e[0][:offset],
+                      "{:,d}".format(e[1]), "{:,d}".format(views[e[0]])])
+
     most_viewed = max(views, key=views.get)
+    most_fav = max(fav, key=fav.get)
+
+    print_user_stats(user_name, nb_followers, nb_following, nb_scores)
+
     print("\n\"" + most_viewed + "\" is the most viewed sheet with " +
           "{:,d}".format(views[most_viewed]) + " views.")
 
-    most_fav = max(fav, key=fav.get)
     print("\"" + most_fav + "\" is the most favorited sheet with " +
           "{:,d}".format(fav[most_fav]) + " favorites.\n")
 
     print("\nTOTAL VIEWS:", "{:,d}".format(sum(views.values())))
     print("TOTAL FAVORITES:", "{:,d}".format(sum(fav.values())))
 
-    sorted_views = sorted(views.items(), key=lambda x: x[1], reverse=True)
-    viewed = [["", "SHEET NAME", "VIEW COUNT", "FAVORITES COUNT"]]
-    for i, e in zip([i + 1 for i in range(0, len(sorted_views))], sorted_views):
-        viewed.append([i, e[0][:offset], "{:,d}".format(
-            e[1]), "{:,d}".format(fav[e[0]])])
-
     # print(tabulate(viewed[1:], headers=viewed[0], tablefmt='orgtbl'))
     print("\n Most viewed sheets :\n")
 
-    views_tab = PrettyTable(viewed[0])
-    for v in viewed[1:]:
-        views_tab.add_row(v)
     print(views_tab)
-
-    sorted_fav = sorted(fav.items(), key=lambda x: x[1], reverse=True)
-    faved = [["", "SHEET NAME", "FAVORITES COUNT", "VIEW COUNT"]]
-    for i, e in zip([i + 1 for i in range(0, len(sorted_fav))], sorted_fav):
-        faved.append([i, e[0][:offset],
-                      "{:,d}".format(e[1]), "{:,d}".format(views[e[0]])])
 
     print("\n Most favorited sheets :\n")
 
