@@ -3,7 +3,7 @@ import platform
 from os import system, get_terminal_size
 import sys
 import re
-from tabulate import tabulate
+import math
 from prettytable import PrettyTable
 from selenium.common.exceptions import TimeoutException, InvalidArgumentException
 from selenium.webdriver.support import expected_conditions as EC
@@ -12,6 +12,8 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium import webdriver
+import time
+
 
 clear_command = "cls" if platform.system() == "Windows" else "clear"
 system(clear_command)
@@ -31,12 +33,17 @@ print("Setting things up...")
 offset = 50
 
 
-def print_user_stats(username, nb_followers, nb_following, nb_scores):
+def print_user_stats(username, nb_followers, nb_following, nb_scores, views, fav):
     system(clear_command)
     s = "*" * offset + " " + username + " " + "*" * offset
     print(s)
     for k, v in {"Followers": nb_followers, "Following": nb_following, "Number of scores": nb_scores}.items():
         print(k.upper() + ": " + v.rjust(23 - len(k), ' '))
+
+    print("\nTotal views:", "{:,d}".format(sum(views.values())).rjust(
+        24 - len('Total views:'), ' '))
+    print("Total favorites:", "{:,d}".format(
+        sum(fav.values())).rjust(24 - len('Total favorites:'), ' '))
 
 
 try:
@@ -120,31 +127,31 @@ while True:
 
     sorted_views = sorted(views.items(), key=lambda x: x[1], reverse=True)
     viewed = [["", "SHEET NAME", "VIEW COUNT", "FAVORITES COUNT"]]
-    for i, e in zip([i + 1 for i in range(0, len(sorted_views))], sorted_views):
+    a = min(20, len(sorted_views))
+    for i, e in zip([i + 1 for i in range(0, a)], sorted_views):
         viewed.append([i, e[0][:offset], "{:,d}".format(
             e[1]), "{:,d}".format(fav[e[0]])])
     views_tab = PrettyTable(viewed[0])
-    for v in viewed[1:]:
+    for v in viewed[1:20]:
         views_tab.add_row(v)
     sorted_fav = sorted(fav.items(), key=lambda x: x[1], reverse=True)
     faved = [["", "SHEET NAME", "FAVORITES COUNT", "VIEW COUNT"]]
-    for i, e in zip([i + 1 for i in range(0, len(sorted_fav))], sorted_fav):
+    a = min(20, len(sorted_fav))
+    for i, e in zip([i + 1 for i in range(0, a)], sorted_fav):
         faved.append([i, e[0][:offset],
                       "{:,d}".format(e[1]), "{:,d}".format(views[e[0]])])
 
     most_viewed = max(views, key=views.get)
     most_fav = max(fav, key=fav.get)
 
-    print_user_stats(user_name, nb_followers, nb_following, nb_scores)
+    print_user_stats(user_name, nb_followers,
+                     nb_following, nb_scores, views, fav)
 
     print("\n\"" + most_viewed + "\" is the most viewed sheet with " +
           "{:,d}".format(views[most_viewed]) + " views.")
 
     print("\"" + most_fav + "\" is the most favorited sheet with " +
           "{:,d}".format(fav[most_fav]) + " favorites.\n")
-
-    print("\nTOTAL VIEWS:", "{:,d}".format(sum(views.values())))
-    print("TOTAL FAVORITES:", "{:,d}".format(sum(fav.values())))
 
     # print(tabulate(viewed[1:], headers=viewed[0], tablefmt='orgtbl'))
     print("\n Most viewed sheets :\n")
@@ -159,11 +166,16 @@ while True:
     print(fav_tab)
 
     while True:
-        a = input(
-            "\nPress [ENTER] to see stats for another user, [Q] to exit\n> ")
-        if a == "":
-            system(clear_command)
-            break
-        elif a.lower() == "q":
-            system(clear_command)
-            quit()
+        try:
+            a = input(
+                "\nPress [ENTER] to see stats for another user, [Q] to exit\n> ")
+            if a == "":
+                system(clear_command)
+                break
+            elif a.lower() == "q":
+                system(clear_command)
+                quit()
+        except (KeyboardInterrupt, EOFError):
+            print("Exitting. Goodbye !")
+            time.sleep(2)
+            sys.exit()
