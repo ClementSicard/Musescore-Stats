@@ -127,19 +127,28 @@ while True:
 
     sorted_views = sorted(views.items(), key=lambda x: x[1], reverse=True)
     viewed = [["", "SHEET NAME", "VIEW COUNT", "FAVORITES COUNT"]]
+
     a = min(20, len(sorted_views))
+
     for i, e in zip([i + 1 for i in range(0, a)], sorted_views):
         viewed.append([i, e[0][:offset], "{:,d}".format(
             e[1]), "{:,d}".format(fav[e[0]])])
+
     views_tab = PrettyTable(viewed[0])
-    for v in viewed[1:20]:
+    for v in viewed[1:]:
         views_tab.add_row(v)
+
     sorted_fav = sorted(fav.items(), key=lambda x: x[1], reverse=True)
     faved = [["", "SHEET NAME", "FAVORITES COUNT", "VIEW COUNT"]]
+
     a = min(20, len(sorted_fav))
     for i, e in zip([i + 1 for i in range(0, a)], sorted_fav):
         faved.append([i, e[0][:offset],
                       "{:,d}".format(e[1]), "{:,d}".format(views[e[0]])])
+
+    fav_tab = PrettyTable(faved[0])
+    for f in faved[1:]:
+        fav_tab.add_row(f)
 
     most_viewed = max(views, key=views.get)
     most_fav = max(fav, key=fav.get)
@@ -160,9 +169,6 @@ while True:
 
     print("\n Most favorited sheets :\n")
 
-    fav_tab = PrettyTable(faved[0])
-    for f in faved[1:]:
-        fav_tab.add_row(f)
     print(fav_tab)
 
     while True:
