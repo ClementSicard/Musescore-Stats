@@ -25,12 +25,13 @@ print("""
  | |  | || |_| |\__ \|  __/\__ \| (__| (_) || |  |  __/|_____|___) || |_| (_| || |_ \__ |
  |_|  |_| \__,_||___/ \___||___/ \___|\___/ |_|   \___|      |____/  \__|\__,_| \__||___/
 
-Developped by Clément Sicard                                                                                         
+Developed by Clément Sicard                                                                                         
 
 """)
 print("Setting things up...")
 
 offset = 50
+
 
 
 def print_user_stats(username, nb_followers, nb_following, nb_scores, views, fav):
@@ -94,14 +95,18 @@ while True:
 
     user_class_name = "_3-vzW"
     user_details_class_name = "k1Ae2"
+    new_page_class_name = "_3R0py"
+
+    nb_followers, nb_following, nb_scores = 0
+
     sheet_music_url = driver.find_element_by_partial_link_text('Sheet')
 
     user_name = driver.find_elements_by_class_name(user_class_name)[0].text
     user_details = driver.find_elements_by_class_name(user_details_class_name)
 
-    nb_followers = user_details[0].text
-    nb_following = user_details[1].text
-    nb_scores = user_details[2].text
+    nb_followers += user_details[0].text
+    nb_following += user_details[1].text
+    nb_scores += user_details[2].text
 
     views = dict()
     fav = dict()
@@ -128,7 +133,7 @@ while True:
     sorted_views = sorted(views.items(), key=lambda x: x[1], reverse=True)
     viewed = [["", "SHEET NAME", "VIEW COUNT", "FAVORITES COUNT"]]
 
-    a = min(20, len(sorted_views))
+    a = min(200, len(sorted_views))
 
     for i, e in zip([i + 1 for i in range(0, a)], sorted_views):
         viewed.append([i, e[0][:offset], "{:,d}".format(
@@ -141,7 +146,7 @@ while True:
     sorted_fav = sorted(fav.items(), key=lambda x: x[1], reverse=True)
     faved = [["", "SHEET NAME", "FAVORITES COUNT", "VIEW COUNT"]]
 
-    a = min(20, len(sorted_fav))
+    a = min(200, len(sorted_fav))
     for i, e in zip([i + 1 for i in range(0, a)], sorted_fav):
         faved.append([i, e[0][:offset],
                       "{:,d}".format(e[1]), "{:,d}".format(views[e[0]])])
